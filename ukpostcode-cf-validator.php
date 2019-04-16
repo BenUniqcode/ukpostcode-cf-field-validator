@@ -1,23 +1,35 @@
 <?php
 /**
- * Plugin Name: Custom Caldera Forms Field Validator Example
+ * @link              https://uniqcode.com
+ * @since             1.0.0
+ * @package           ukpostcode-cf-validator
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Caldera Forms UK Postcode Validator
+ * Plugin URI:        https://uniqcode.com
+ * Description:       Caldera Forms custom validator for UK postcodes
+ * Version:           1.0.0
+ * Author:            Ben Wheeler
+ * Author URI:        https://uniqcode.com
+ * Text Domain:       ukpostcode-cf-validator
+ * Domain Path:       /languages
  */
-add_filter('caldera_forms_get_form_processors', 'my_custom_cf_validator_processor');
+add_filter('caldera_forms_get_form_processors', 'ukpostcode_cf_validator_processor');
 
 /**
  * Add a custom processor for field validation
  *
- * @uses 'my_custom_cf_validator_processor'
+ * @uses 'ukpostcode_cf_validator_processor'
  *
  * @param array $processors Processor configs
  *
  * @return array
  */
-function my_custom_cf_validator_processor($processors){
-    $processors['my_custom_cf_validator'] = array(
-        'name' => __('Custom Validator', 'my-text-domain' ),
-        'description' => '',
-        'pre_processor' => 'my_custom_validator',
+function ukpostcode_cf_validator_processor($processors){
+    $processors['ukpostcode_cf_validator'] = array(
+        'name' => __('UK Postcode Validator', 'ukpostcode-cf-validator' ),
+        'description' => 'Validate and Canonicalise UK Postcodes',
+        'pre_processor' => 'ukpostcode_validator',
         'template' => dirname(__FILE__) . '/config.php'
 
     );
@@ -33,16 +45,16 @@ function my_custom_cf_validator_processor($processors){
  *
  * @return array|void Error array if needed, else void.
  */
-function my_custom_validator( array $config, array $form ){
+function ukpostcode_validator( array $config, array $form ){
 
     //Processor data object
-    $data = new Caldera_Forms_Processor_Get_Data( $config, $form, my_custom_cf_validator_fields() );
+    $data = new Caldera_Forms_Processor_Get_Data( $config, $form, ukpostcode_cf_validator_fields() );
 
     //Value of field to be validated
     $value = $data->get_value( 'field-to-validate' );
 
     //if not valid, return an error
-    if( false == my_custom_cf_validator_is_valid( $value ) ){
+    if( false == ukpostcode_cf_validator_is_valid( $value ) ){
 
         //get ID of field to put error on
         $fields = $data->get_fields();
@@ -60,7 +72,7 @@ function my_custom_validator( array $config, array $form ){
             //Add error messages for any form field
             'fields' => array(
                 //This error message will be shown below the field that we are validating
-                $field_id => __( 'This field is invalid', 'text-domain' )
+                $field_id => __( 'This field is invalid', 'ukpostcode-cf-validator' )
             )
         );
     }
@@ -77,12 +89,9 @@ function my_custom_validator( array $config, array $form ){
  *
  * @return bool
  */
-function my_custom_cf_validator_is_valid( $value ){
-    return in_array( $value, array(
-        'Han Solo',
-        'Chewbacca',
-        'Rey'
-    ) );
+function ukpostcode_cf_validator_is_valid( $value ){
+    $value = preg_replace('/\s+/', '', $value);
+    return preg_match('/^[a-z]{1,2}[0-9]{2,3}[a-z]{2}$/', $value);
 }
 
 /**
@@ -90,14 +99,14 @@ function my_custom_cf_validator_is_valid( $value ){
  *
  * @return array
  */
-function my_custom_cf_validator_fields(){
+function ukpostcode_cf_validator_fields(){
     return array(
         array(
             'id' => 'field-to-validate',
             'type' => 'text',
             'required' => true,
             'magic' => true,
-            'label' => __( 'Magic tag for field to validate.', 'my-text-domain' )
+            'label' => __( 'Magic tag for field to validate.', 'ukpostcode-cf-validator' )
         ),
     );
 }
