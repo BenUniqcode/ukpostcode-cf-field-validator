@@ -90,8 +90,8 @@ function ukpostcode_validator( array $config, array $form ){
  * @return bool
  */
 function ukpostcode_cf_validator_is_valid( $value ){
-    $value = preg_replace('/\s+/', '', $value);
-    return preg_match('/^[a-z]{1,2}[0-9]{2,3}[a-z]{2}$/', $value);
+    $value = strtoupper(preg_replace('/\s+/', '', $value));
+    return preg_match('/^[A-Z]{1,2}[0-9]{2,3}[A-Z]{2}$/', $value);
 }
 
 /**
